@@ -308,10 +308,19 @@
     <Compile Include="src\MkrADC.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\MkrSineChopper5.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\MkrTimer5.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\MkrTimer5.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\MkrTimerUtil.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\MkrTimerUtil.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\SetupLoop.cpp">

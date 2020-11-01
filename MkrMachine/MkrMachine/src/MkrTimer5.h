@@ -15,7 +15,7 @@
 class MkrTimer5Singleton {
     public:
       int convertHertzToMicroseconds(int hertz);
-      void start(int microseconds, int duty1024 = 0, void (*isrCallback)() = 0);
+      void start(int periodMicros, int duty1024 = 0, void (*isrCallback)() = 0);
       void stop();
       
       int getPrescaler();
