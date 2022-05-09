@@ -6,7 +6,9 @@
 #include <Arduino.h>
 #include <adc/adc.h> // ASF ADC driver
 #include <adc/adc_callback.h>
+
 #include "MkrADC.h"
+#include "MkrUtil.h"
 
 #define MICROS_PER_SECOND 1000000
 
@@ -40,8 +42,8 @@ static void userCallbackADCResultReady(struct adc_module *const module)
 // Choose ADC prescaler based on PWM frequency, experimental manual values used here.
 static adc_clock_prescaler choosePrescaler(uint32_t usecFrameLatency)
 {
-  // prescaler<32 gives zero reading holes in sequence.
-  // Values were choosen to produce around 256 samples on frame of usecFrameLatency.
+  // prescaler<32 produces reading holes containing '0' in the output sequence.
+  // Values were chosen to produce around 256 samples during frame of usecFrameLatency.
   if(usecFrameLatency < (MICROS_PER_SECOND / 1200)) return ADC_CLOCK_PRESCALER_DIV32;
   if(usecFrameLatency < (MICROS_PER_SECOND / 600)) return ADC_CLOCK_PRESCALER_DIV64;
   if(usecFrameLatency < (MICROS_PER_SECOND / 300)) return ADC_CLOCK_PRESCALER_DIV128;
@@ -80,12 +82,12 @@ static void configureAndStartFreeRunningADC(uint8_t arduinoAnalogPin, uint32_t u
   config_adc.gain_factor = ADC_GAIN_FACTOR_DIV2; // multiply measure by two
   config_adc.sample_length = 0; // default Arduino value=63, switch to 0 gives speed boost from 40ksps to 300ksps
   config_adc.freerunning = true; // continuous operation
-  adc_init(&adc_instance, ADC, &config_adc);
+  expect0(adc_init(&adc_instance, ADC, &config_adc));
   
   adc_register_callback(&adc_instance, userCallbackADCResultReady, ADC_CALLBACK_RESULT_READY);
   adc_enable_callback(&adc_instance, ADC_CALLBACK_RESULT_READY);
 
-  adc_enable(&adc_instance);
+  expect0(adc_enable(&adc_instance));
   
   NVIC_EnableIRQ(ADC_IRQn);
   NVIC_SetPriority(ADC_IRQn, 0); // zero is maximum priority

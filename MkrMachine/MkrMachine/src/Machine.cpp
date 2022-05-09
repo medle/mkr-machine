@@ -4,14 +4,15 @@
  * Author: SL
  */ 
 #include <Arduino.h>
-#include "MkrTimer5.h"
+#include "MkrSineChopperTcc.h"
 #include "MkrADC.h"
 #include "Machine.h"
 #include "UserCommandHandler.h"
 
-#define PIN_MACHINE_ENABLED 6
-
 MachineSingleton Machine;
+
+// PWM indicator LED pin
+#define PWM_LED_PIN LED_BUILTIN
 
 enum MachineMode 
 { 
@@ -24,30 +25,27 @@ enum MachineMode
                    
 static MachineMode _machineMode = MachineModeDisabled;
 static char _replyBuffer[ADC_MAX_SAMPLES * 4]; // each sample has 3 digits and space
-static int _periodUsec;
+static int _cycleMicroseconds = 0;
 
-static void _isrPeriodEndCallback();
+static void isrCycleEndCallback();
 
-void MachineSingleton::enablePWM(int usec, int duty1024)
+void MachineSingleton::enablePWM(int cycleMicroseconds, int duty1024, int numChops)
 {
   _machineMode = MachineModeEnabled;
-  _periodUsec = usec;
-  MkrTimer5.start(usec, duty1024, _isrPeriodEndCallback);
+  _cycleMicroseconds = cycleMicroseconds;
+  MkrSineChopperTcc.start(cycleMicroseconds, duty1024, numChops, isrCycleEndCallback);
   
-  // enable builtin led and "enabled" pin
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);
-  pinMode(PIN_MACHINE_ENABLED, OUTPUT);
-  digitalWrite(PIN_MACHINE_ENABLED, HIGH);
+  // turn led on
+  pinMode(PWM_LED_PIN, OUTPUT);
+  digitalWrite(PWM_LED_PIN, HIGH);
 }
 
 void MachineSingleton::disablePWM()
 {
-  // disable builtin led, and "enabled" pin 
-  digitalWrite(LED_BUILTIN, LOW);
-  digitalWrite(PIN_MACHINE_ENABLED, LOW);
+  // turn led off
+  digitalWrite(PWM_LED_PIN, LOW);
   
-  MkrTimer5.stop();
+  MkrSineChopperTcc.stop();
   _machineMode = MachineModeDisabled;
 }
 
@@ -76,7 +74,7 @@ bool MachineSingleton::recordNewBatchAndSendToUser(uint8_t analogPin)
     return UserCommandHandler.handleUserCommandError("PIN number of of range [0, 6]");
   int arduinoPin = arduinoPins[analogPin];
     
-  MkrADC.enableConvertorInFreeRunningMode(arduinoPin, _periodUsec);
+  MkrADC.enableConvertorInFreeRunningMode(arduinoPin, _cycleMicroseconds);
   startNewRecording();
 
   // wait while batch is recording     
@@ -97,7 +95,7 @@ bool MachineSingleton::recordNewBatchAndSendToUser(uint8_t analogPin)
   return UserCommandHandler.handleUserCommandSuccess(_replyBuffer);
 }
 
-static void _isrPeriodEndCallback()
+static void isrCycleEndCallback()
 {
   switch(_machineMode) {
     

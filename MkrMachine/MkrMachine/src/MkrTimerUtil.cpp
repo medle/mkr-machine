@@ -8,21 +8,15 @@
 #include "tc\tc.h" // ASF Timer driver
 #include "tc\tc_interrupt.h"
 
+#include "MkrUtil.h"
 #include "MkrTimerUtil.h"
 
-#define MICROS_PER_SECOND 1000000
 #define MAX_PERIOD_VALUE_16BIT 0xFFFF // 16-bit resolution
-
-int convertHertzToMicroseconds(int hertz)
-{
-  if(hertz <= 0) return 0;
-  return (MICROS_PER_SECOND / hertz);
-}
 
 int chooseTcClockPrescalerAndPeriodFor16BitTimer(int periodMicros, uint32_t *outPeriodValue)
 {
   tc_clock_prescaler prescaler;
-  uint32_t periodValue = (F_CPU / MICROS_PER_SECOND) * periodMicros;
+  uint32_t periodValue = convertCycleMicrosecondsToClocksPerCycle(periodMicros);
   
   if(periodValue <= MAX_PERIOD_VALUE_16BIT) prescaler = TC_CLOCK_PRESCALER_DIV1;
   else if((periodValue >>= 1) <= MAX_PERIOD_VALUE_16BIT) prescaler = TC_CLOCK_PRESCALER_DIV2;

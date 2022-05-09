@@ -10,7 +10,7 @@
 class MachineSingleton
 {
   public:
-    void enablePWM(int usec, int duty1024); 
+    void enablePWM(int cycleMicroseconds, int duty1024, int numChops); 
     void disablePWM();
     bool isPWMEnabled();
     bool hasFinishedRecording();

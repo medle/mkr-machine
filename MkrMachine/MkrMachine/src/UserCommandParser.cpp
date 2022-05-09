@@ -75,6 +75,11 @@ static bool ParseCommand(char *commandName, int commandId, int numParams)
     length = ParseNumberAfterSpaces(inside, &_userCommand.parameter2);
     if(length < 1) return false;
     if(numParams == 2) return true;
+    
+    inside += length;
+    length = ParseNumberAfterSpaces(inside, &_userCommand.parameter3);
+    if(length < 1) return false;
+    if(numParams == 3) return true;
   }
 
   return false;  
@@ -86,7 +91,7 @@ static bool ParseCommandInBuffer()
   if(ParseCommand(ADC_COMMAND_NAME, ADC_COMMAND_ID, 1)) return true;
 
   // parse PWM command with two parameters 
-  if(ParseCommand(PWM_COMMAND_NAME, PWM_COMMAND_ID, 2)) return true;
+  if(ParseCommand(PWM_COMMAND_NAME, PWM_COMMAND_ID, 3)) return true;
 
   // commands without parameters
   if(ParseCommand(STOP_COMMAND_NAME, STOP_COMMAND_ID, 0)) return true;

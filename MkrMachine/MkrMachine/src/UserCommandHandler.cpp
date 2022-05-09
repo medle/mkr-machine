@@ -27,14 +27,17 @@ bool UserCommandHandlerSingleton::handleUserCommand(UserCommand *pCommand)
   }
   
   if(pCommand->commandId == PWM_COMMAND_ID) {
-    int usec = pCommand->parameter1;
-    if(usec < 10 || usec > 1000000L)
-      return handleUserCommandError("period microseconds out of range [10,1000000]");
+    int cycleMicroseconds = pCommand->parameter1;
+    if(cycleMicroseconds < 10)
+      return handleUserCommandError("cycle microseconds < 10");
     int duty1024 = pCommand->parameter2;
     if(duty1024 >= 1024)
       return handleUserCommandError("duty cycle out of range [0,1023]");
+    int numChops = pCommand->parameter3;
+    if(numChops < 0 || numChops > 20)
+      return handleUserCommandError("numChops value out of range [0, 20]");
 
-    Machine.enablePWM(usec, duty1024);
+    Machine.enablePWM(cycleMicroseconds, duty1024, numChops);
     return handleUserCommandSuccess("PWM (ADC running) is enabled.");
   }
 

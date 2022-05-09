@@ -308,7 +308,10 @@
     <Compile Include="src\MkrADC.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\MkrSineChopper5.h">
+    <Compile Include="src\MkrSineChopperTcc.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\MkrSineChopperTcc.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\MkrTimer5.cpp">
@@ -321,6 +324,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\MkrTimerUtil.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\MkrUtil.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\MkrUtil.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\SetupLoop.cpp">

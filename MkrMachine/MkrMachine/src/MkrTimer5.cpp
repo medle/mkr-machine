@@ -6,6 +6,7 @@
  */ 
 #include <Arduino.h>
 #include "MkrTimer5.h"
+#include "MkrTimerUtil.h"
 
 #include "tc\tc.h" // ASF Timer driver
 #include "tc\tc_interrupt.h"
@@ -15,8 +16,6 @@ MkrTimer5Singleton MkrTimer5;
 
 // TimerCounter5 16-bit resolution.
 #define MAX_PERIOD_VALUE 0xFFFF
-
-#define MICROS_PER_SECOND 1000000
 
 // attached user callback routine
 static void (*_isrUserCallback)();
@@ -37,16 +36,9 @@ void MkrTimer5Singleton::start(int periodMicros, int duty1024, void (*isrCallbac
   stop();
 
   // choose the prescaler to slow down the timer when period value is greater than max period value
-  tc_clock_prescaler prescaler;
-  uint32_t periodValue = (F_CPU / MICROS_PER_SECOND) * periodMicros;
-  if(periodValue <= MAX_PERIOD_VALUE) prescaler = TC_CLOCK_PRESCALER_DIV1;
-  else if((periodValue >>= 1) <= MAX_PERIOD_VALUE) prescaler = TC_CLOCK_PRESCALER_DIV2; 
-  else if((periodValue >>= 1) <= MAX_PERIOD_VALUE) prescaler = TC_CLOCK_PRESCALER_DIV4;
-  else if((periodValue >>= 1) <= MAX_PERIOD_VALUE) prescaler = TC_CLOCK_PRESCALER_DIV8;
-  else if((periodValue >>= 1) <= MAX_PERIOD_VALUE) prescaler = TC_CLOCK_PRESCALER_DIV16;
-  else if((periodValue >>= 2) <= MAX_PERIOD_VALUE) prescaler = TC_CLOCK_PRESCALER_DIV64;
-  else if((periodValue >>= 2) <= MAX_PERIOD_VALUE) prescaler = TC_CLOCK_PRESCALER_DIV256;
-  else if((periodValue >>= 2) <= MAX_PERIOD_VALUE) prescaler = TC_CLOCK_PRESCALER_DIV1024;
+  uint32_t periodValue = 0;
+  tc_clock_prescaler prescaler = (tc_clock_prescaler)chooseTcClockPrescalerAndPeriodFor16BitTimer
+    (periodMicros, &periodValue);
 
   // load default configuration values
   tc_get_config_defaults(&_config_tc);
@@ -106,12 +98,6 @@ void MkrTimer5Singleton::stop()
       tc_unregister_callback(&_tc_instance, cb_type);
     }    
   }    
-}
-
-int MkrTimer5Singleton::convertHertzToMicroseconds(int hertz)
-{
-  if(hertz <= 0) return 0;
-  return (MICROS_PER_SECOND / hertz);
 }
 
 int MkrTimer5Singleton::getPrescaler() 

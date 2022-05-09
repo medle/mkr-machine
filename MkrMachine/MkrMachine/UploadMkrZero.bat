@@ -5,7 +5,7 @@ rem NOTE: For this script to work from AtmelStudio change auto-generated Linker 
 rem Change "-Tflash_without_bootloader.ld" to "-Tflash_with_bootloader.ld"
 rem SL (04.07.2020)
 
-set COM_PORT=COM4
+set COM_PORT=COM3
 set PROJECT_NAME=%1%
 set BIN_DIR=Release
 set DEFAULT_BIN=..ino.bin
@@ -16,14 +16,15 @@ rem %BOSSAC% -i -d --port=COM5 -U true -i -e -w -v Release\MkrTimer.bin -R
 rem Exit 0
 
 rem Copy project binary to default name so arduino-cli uploader can find it
-copy %BIN_DIR%\%PROJECT_NAME%.bin %BIN_DIR%\%DEFAULT_BIN%
+ls -l %BIN_DIR%\%PROJECT_NAME%.bin
+cp --verbose %BIN_DIR%\%PROJECT_NAME%.bin %BIN_DIR%\%DEFAULT_BIN%
 IF %ERRORLEVEL% EQU 0 goto DoUpload
   Echo Failed to copy "%BIN_DIR%\%PROJECT_NAME%.BIN" into "%BIN_DIR%\%DEFAULT_BIN%". 
   Exit 1
 
 :DoUpload
 rem --log-level trace --verbose
-c:\home\apps\arduino-cli\arduino-cli.exe upload --verbose --port %COM_PORT% --input-dir %BIN_DIR% --fqbn arduino:samd:mkrzero NotUsed
+arduino-cli.exe upload --verbose --port %COM_PORT% --input-dir %BIN_DIR% --fqbn arduino:samd:mkrzero NotUsed
 IF %ERRORLEVEL% EQU 0 goto DoExit 
 echo Upload FAILED: errorlevel=%ERRORLEVEL%. 
 Exit 1

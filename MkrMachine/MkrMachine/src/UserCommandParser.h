@@ -20,6 +20,7 @@ struct UserCommand
   byte commandId;
   int parameter1;
   int parameter2;
+  int parameter3;
 };
 
 class UserCommandParserSingleton 
