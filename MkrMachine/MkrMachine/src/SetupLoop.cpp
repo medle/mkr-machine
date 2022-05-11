@@ -4,6 +4,7 @@
 
 #include "MkrUtil.h"
 #include "UserCommandParser.h"
+#include "MkrSineChopperTcc.h"
 #include "Machine.h"
 
 // the setup function runs once when you press reset or power the board
@@ -15,8 +16,7 @@ void setup()
   // initialize ASF core
   system_init();
 	
-  // initialize digital pin LED_BUILTIN as an output.
-  pinMode(LED_BUILTIN, OUTPUT);
+  MkrSineChopperTcc.initPins();
 
   // perform 3 blinks to signal proper starting  
   blink(3, 300);
