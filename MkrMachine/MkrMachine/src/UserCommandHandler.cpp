@@ -42,7 +42,7 @@ bool UserCommandHandlerSingleton::handleUserCommand(UserCommand *pCommand)
   }
 
   if(pCommand->commandId == VERSION_COMMAND_ID) {
-    return handleUserCommandSuccess(PROGRAM_NAME " (" __DATE__ ").");
+    return handleUserCommandSuccess(PROGRAM_NAME " (" __DATE__ " " __TIME__ ").");
   }
 
   if(pCommand->commandId == HELLO_COMMAND_ID) {
